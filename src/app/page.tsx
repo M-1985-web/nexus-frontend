@@ -1,8 +1,53 @@
 'use client';
+import { Sidebar } from '@/components/Sidebar';
+import EnglishTest from '@/components/EnglishTest';
 import { useState } from 'react';
 import nexusApi from '../api/nexusApi';
 
-export default function RegisterPage() {
+export default function Home() {
+    // ID de talento para la prueba
+    const TEST_TALENTO_ID = "6776e6a88b5066601b50030d";
+
+    return (
+        /* MODIFICACIÓN: Se cambió bg-slate-950 por una clase que permite ver el gradiente del globals.css */
+        <div className="flex min-h-screen bg-transparent selection:bg-blue-500/30">
+
+            {/* Sidebar con la medalla reactiva */}
+            <Sidebar talentoId={TEST_TALENTO_ID} />
+
+            {/* Área principal del test adaptativo */}
+            <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-10">
+
+                {/* MODIFICACIÓN: Contenedor con efecto de cristal (glassmorphism) para mayor impacto visual */}
+                <div className="w-full max-w-3xl bg-slate-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-3xl shadow-2xl">
+
+                    {/* MODIFICACIÓN: Título con estilo tipográfico de terminal de alta tecnología */}
+                    <h1 className="text-blue-400 text-xs font-mono mb-10 opacity-70 uppercase tracking-[0.4em] text-center animate-pulse">
+                        Protocolo de Verificación de Idioma v1.0
+                    </h1>
+
+                    {/* MODIFICACIÓN: Contenedor para el componente EnglishTest para asegurar que herede los estilos neón */}
+                    <div className="relative">
+                        <EnglishTest talentoId={TEST_TALENTO_ID} />
+                    </div>
+
+                    {/* DECORACIÓN VISUAL: Una pequeña línea sutil al final para cerrar el diseño */}
+                    <div className="mt-8 flex justify-center gap-2 opacity-20">
+                        <div className="h-1 w-1 bg-blue-500 rounded-full"></div>
+                        <div className="h-1 w-12 bg-blue-500 rounded-full"></div>
+                        <div className="h-1 w-1 bg-blue-500 rounded-full"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}
+
+// ==========================================
+// NEXUS PROTOCOL - LOGIN (CÓDIGO COMENTADO)
+// ==========================================
+/*
+export function RegisterPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
@@ -10,11 +55,9 @@ export default function RegisterPage() {
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Llamada al backend de NestJS
             const response = await nexusApi.post('/auth/register', { email, password });
             setMessage(`¡Éxito! Talento registrado en Nexus. ID: ${response.data._id}`);
         } catch (error: any) {
-            // Capturamos el error (ej: si el email ya existe o es inválido)
             setMessage(error.response?.data?.message || 'Fallo en la conexión con la matriz');
         }
     };
@@ -67,3 +110,4 @@ export default function RegisterPage() {
         </main>
     );
 }
+*/

@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+    --background: #020617;
+    --foreground: #ffffff;
+    --nexus-blue: #3b82f6;
+}
+
+body {
+    /* Gradiente radial para eliminar el fondo plano y aburrido */
+    background: radial-gradient(circle at top right, #1e293b, #020617);
+    color: var(--foreground);
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Efecto Neón: Usamos estilos estándar para evitar la advertencia de VS Code */
+.btn-nexus-neon {
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-nexus-neon:hover {
+    border-color: var(--nexus-blue);
+    color: var(--nexus-blue);
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4),
+        inset 0 0 10px rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px);
+}
