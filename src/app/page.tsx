@@ -1,113 +1,103 @@
 'use client';
-import { Sidebar } from '@/components/Sidebar';
-import EnglishTest from '@/components/EnglishTest';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import nexusApi from '../api/nexusApi';
 
-export default function Home() {
-    // ID de talento para la prueba
-    const TEST_TALENTO_ID = "6776e6a88b5066601b50030d";
-
-    return (
-        /* MODIFICACIÓN: Se cambió bg-slate-950 por una clase que permite ver el gradiente del globals.css */
-        <div className="flex min-h-screen bg-transparent selection:bg-blue-500/30">
-
-            {/* Sidebar con la medalla reactiva */}
-            <Sidebar talentoId={TEST_TALENTO_ID} />
-
-            {/* Área principal del test adaptativo */}
-            <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-10">
-
-                {/* MODIFICACIÓN: Contenedor con efecto de cristal (glassmorphism) para mayor impacto visual */}
-                <div className="w-full max-w-3xl bg-slate-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-3xl shadow-2xl">
-
-                    {/* MODIFICACIÓN: Título con estilo tipográfico de terminal de alta tecnología */}
-                    <h1 className="text-blue-400 text-xs font-mono mb-10 opacity-70 uppercase tracking-[0.4em] text-center animate-pulse">
-                        Protocolo de Verificación de Idioma v1.0
-                    </h1>
-
-                    {/* MODIFICACIÓN: Contenedor para el componente EnglishTest para asegurar que herede los estilos neón */}
-                    <div className="relative">
-                        <EnglishTest talentoId={TEST_TALENTO_ID} />
-                    </div>
-
-                    {/* DECORACIÓN VISUAL: Una pequeña línea sutil al final para cerrar el diseño */}
-                    <div className="mt-8 flex justify-center gap-2 opacity-20">
-                        <div className="h-1 w-1 bg-blue-500 rounded-full"></div>
-                        <div className="h-1 w-12 bg-blue-500 rounded-full"></div>
-                        <div className="h-1 w-1 bg-blue-500 rounded-full"></div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
-}
-
-// ==========================================
-// NEXUS PROTOCOL - LOGIN (CÓDIGO COMENTADO)
-// ==========================================
-/*
-export function RegisterPage() {
+export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    const handleRegister = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
+        setMessage('');
+
         try {
-            const response = await nexusApi.post('/auth/register', { email, password });
-            setMessage(`¡Éxito! Talento registrado en Nexus. ID: ${response.data._id}`);
+            // Intento de conexión al backend
+            const response = await nexusApi.post('/auth/login', { email, password });
+
+            // Si el backend responde 200/201, guardamos el ID
+            const talentoId = response.data.talentoId || response.data._id;
+
+            if (talentoId) {
+                localStorage.setItem('nexus_talento_id', talentoId);
+                setMessage('ACCESO CONCEDIDO. SINCRONIZANDO...');
+                setTimeout(() => router.push('/dashboard'), 1500);
+            }
         } catch (error: any) {
-            setMessage(error.response?.data?.message || 'Fallo en la conexión con la matriz');
+            setLoading(false);
+            // Manejo específico del error 401 que ves en consola
+            if (error.response?.status === 401) {
+                setMessage('CREDENCIALES NO VÁLIDAS EN NEXUS');
+            } else {
+                setMessage('FALLO DE CONEXIÓN CON LA MATRIZ');
+            }
         }
     };
 
     return (
-        <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
-            <div className="border border-cyan-500 p-8 rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.4)] bg-gray-900/50">
-                <h1 className="text-3xl font-bold mb-6 text-cyan-400 tracking-widest text-center">
-                    NEXUS PROTOCOL
-                </h1>
-                <p className="text-gray-400 mb-8 text-center text-sm italic">
-                    Ingresando datos al sistema de emparejamiento...
-                </p>
+        <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
+            <div className="w-full max-w-[440px] border border-cyan-500/20 p-8 md:p-12 rounded-[2rem] shadow-[0_0_60px_rgba(6,182,212,0.1)] bg-slate-900/40 backdrop-blur-2xl relative">
 
-                <form onSubmit={handleRegister} className="flex flex-col gap-5 w-80">
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs text-cyan-300 ml-1">IDENTIFICADOR (EMAIL)</label>
+                <div className="text-center mb-12">
+                    <h1 className="text-3xl font-black mb-3 tracking-tighter uppercase italic">
+                        NEXUS <span className="text-cyan-400 not-italic text-4xl">PROTOCOL</span>
+                    </h1>
+                    <p className="text-cyan-400/40 text-[9px] font-mono uppercase tracking-[0.5em] animate-pulse">
+                        Authentication Required
+                    </p>
+                </div>
+
+                <form onSubmit={handleLogin} className="flex flex-col gap-8">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-mono text-cyan-500/60 uppercase tracking-[0.2em] ml-1">Identificador (Email)</label>
                         <input
                             type="email"
                             required
-                            className="bg-black border border-gray-700 p-3 rounded focus:border-cyan-400 outline-none transition-all text-cyan-50"
+                            placeholder="user@nexus.network"
+                            className="w-full bg-slate-950/80 border border-slate-800 p-4 rounded-2xl focus:border-cyan-500 outline-none transition-all text-cyan-100 text-sm placeholder:text-slate-700"
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1">
-                        <label className="text-xs text-cyan-300 ml-1">CLAVE DE ACCESO</label>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-mono text-cyan-500/60 uppercase tracking-[0.2em] ml-1">Clave de Acceso</label>
                         <input
                             type="password"
                             required
-                            className="bg-black border border-gray-700 p-3 rounded focus:border-cyan-400 outline-none transition-all text-cyan-50"
+                            placeholder="••••••••"
+                            className="w-full bg-slate-950/80 border border-slate-800 p-4 rounded-2xl focus:border-cyan-500 outline-none transition-all text-cyan-100 text-sm placeholder:text-slate-700"
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="mt-4 bg-transparent border border-cyan-500 hover:bg-cyan-500/20 text-cyan-400 font-bold py-3 rounded uppercase tracking-tighter transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                        disabled={loading}
+                        className="mt-4 bg-cyan-500/10 border border-cyan-500/40 hover:bg-cyan-500 hover:text-white text-cyan-400 font-black py-4 rounded-2xl uppercase text-[11px] tracking-[0.3em] transition-all active:scale-95 disabled:opacity-50"
                     >
-                        Autenticar Talento
+                        {loading ? 'Validando...' : 'Autenticar Talento'}
                     </button>
                 </form>
 
                 {message && (
-                    <div className="mt-6 p-3 bg-gray-800 border-l-4 border-yellow-500">
-                        <p className="text-xs text-yellow-400 font-mono uppercase">{message}</p>
+                    <div className="mt-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                        <p className="text-[10px] text-red-400 font-mono uppercase text-center tracking-widest leading-relaxed">
+                            {message}
+                        </p>
                     </div>
                 )}
             </div>
+
+            <button
+                onClick={() => router.push('/register')}
+                className="mt-10 text-slate-500 text-[10px] font-mono uppercase tracking-[0.3em] hover:text-cyan-400 transition-colors"
+            >
+                ¿Nuevo en la red? <span className="underline decoration-cyan-500/30 underline-offset-4">Registrar perfil</span>
+            </button>
         </main>
     );
 }
-*/

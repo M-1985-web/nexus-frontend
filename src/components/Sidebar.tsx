@@ -1,17 +1,17 @@
 'use client';
 import { useEffect } from 'react';
 import { nexusApi } from '@/api/nexusApi';
-// Importamos el hook del contexto global
 import { useTalento } from '@/context/TalentoContext';
-// Icono para la medalla
 import { HiCheckBadge } from "react-icons/hi2";
+// IMPORTANTE: Importamos Link para la navegación profesional
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function Sidebar({ talentoId }: { talentoId: string }) {
-    // Usamos el estado global para actualización inmediata en toda la app
     const { englishLevel, setEnglishLevel } = useTalento();
+    const pathname = usePathname(); // Para saber en qué página estamos
 
     useEffect(() => {
-        // Carga inicial del nivel desde MongoDB Atlas
         const fetchLevel = async () => {
             try {
                 const result = await nexusApi.getResult(talentoId);
@@ -25,63 +25,67 @@ export function Sidebar({ talentoId }: { talentoId: string }) {
         fetchLevel();
     }, [talentoId, setEnglishLevel]);
 
+    // Función auxiliar para estilos de botones activos
+    const linkStyle = (path: string) => `
+        w-full text-left px-4 py-3 rounded-xl transition-all duration-300 text-sm flex items-center gap-3
+        ${pathname === path
+            ? 'bg-blue-600/20 text-blue-400 font-bold border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]'
+            : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
+    `;
+
     return (
-        <aside className="w-64 h-screen bg-slate-900 text-white p-6 flex flex-col shadow-2xl">
+        <aside className="w-64 h-screen bg-slate-900 text-white p-6 flex flex-col shadow-2xl border-r border-white/5">
             {/* Logo de la plataforma */}
-            <div className="mb-10">
+            <div className="mb-10 px-2">
                 <h2 className="text-xl font-black tracking-tight text-blue-500">
                     NEXUS <span className="text-white">TALENTO</span>
                 </h2>
+                <div className="h-0.5 w-8 bg-blue-500 mt-1 rounded-full"></div>
             </div>
 
-            {/* --- MEDALLA DE NIVEL VERIFICADO CON ANIMACIONES --- */}
+            {/* --- MEDALLA DE NIVEL VERIFICADO --- */}
             <div className="mb-8 p-4 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm relative overflow-hidden group">
-
-                {/* 1. EFECTO DE BRILLO: Se intensifica cuando ya hay un nivel cargado */}
-                <div className={`absolute -right-2 -top-2 w-16 h-16 rounded-full blur-2xl transition-all duration-700 ${englishLevel !== '...' ? 'bg-blue-500/30 animate-pulse' : 'bg-blue-600/10'
-                    }`}></div>
+                <div className={`absolute -right-2 -top-2 w-16 h-16 rounded-full blur-2xl transition-all duration-700 ${englishLevel !== '...' ? 'bg-blue-500/30 animate-pulse' : 'bg-blue-600/10'}`}></div>
 
                 <div className="flex items-center gap-2 mb-2">
-                    {/* 2. ICONO REACTIVO: Cambia de color si está verificado */}
-                    <HiCheckBadge className={`text-xl transition-colors ${englishLevel !== '...' ? 'text-blue-400' : 'text-slate-500'
-                        }`} />
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        English Status
-                    </p>
+                    <HiCheckBadge className={`text-xl transition-colors ${englishLevel !== '...' ? 'text-blue-400' : 'text-slate-500'}`} />
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">English Status</p>
                 </div>
 
                 <div className="flex items-end justify-between">
                     <div>
-                        {/* 3. TEXTO DINÁMICO: Animación pulse suave al detectar nivel */}
-                        <p className={`text-4xl font-black leading-none transition-all ${englishLevel !== '...' ? 'text-white animate-pulse' : 'text-slate-600'
-                            }`}>
+                        <p className={`text-4xl font-black leading-none transition-all ${englishLevel !== '...' ? 'text-white' : 'text-slate-600'}`}>
                             {englishLevel}
                         </p>
-                        <p className="text-[9px] text-blue-400 font-bold mt-2 tracking-tighter">
-                            CERTIFICADO POR NEXUS AI
-                        </p>
+                        <p className="text-[9px] text-blue-400 font-bold mt-2 tracking-tighter uppercase">Certificado Nexus</p>
                     </div>
-
-                    {/* 4. BADGE CIRCULAR: Añadimos 'animate-bounce' suave y sombra intensa (glow) */}
-                    <div className={`h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center border border-blue-400/30 transition-all duration-500 ${englishLevel !== '...'
-                            ? 'shadow-[0_0_20px_rgba(37,99,235,0.6)] animate-[bounce_3s_infinite]'
-                            : 'grayscale opacity-50'
-                        }`}>
+                    <div className={`h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center border border-blue-400/30 transition-all duration-500 ${englishLevel !== '...' ? 'shadow-[0_0_20px_rgba(37,99,235,0.6)] animate-[bounce_3s_infinite]' : 'grayscale opacity-50'}`}>
                         <span className="text-[10px] font-black italic">EN</span>
                     </div>
                 </div>
             </div>
 
-            {/* Navegación */}
-            <nav className="space-y-4">
-                <div className="text-xs font-semibold text-slate-500 uppercase px-2">Menú</div>
-                <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors text-sm">
+            {/* Navegación Corregida */}
+            <nav className="space-y-2 flex-1">
+                <div className="text-[10px] font-mono font-semibold text-slate-500 uppercase px-4 mb-4 tracking-[0.2em]">Menú de Sistema</div>
+
+                <Link href="/dashboard" className={linkStyle('/dashboard')}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
                     Dashboard
-                </button>
-                <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors text-sm text-blue-400 font-bold">
+                </Link>
+
+                <Link href="/evaluacion" className={linkStyle('/evaluacion')}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
                     Mis Evaluaciones
-                </button>
+                </Link>
             </nav>
+
+            {/* Botón de Salida (Opcional pero recomendado) */}
+            <div className="mt-auto pt-6 border-t border-white/5">
+                <Link href="/" className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-2 px-4 py-2">
+                    <span>✕</span> Cerrar Sesión
+                </Link>
+            </div>
         </aside>
     );
 }
