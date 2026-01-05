@@ -3,16 +3,17 @@ import { useEffect } from 'react';
 import { nexusApi } from '@/api/nexusApi';
 import { useTalento } from '@/context/TalentoContext';
 import { HiCheckBadge } from "react-icons/hi2";
-// IMPORTANTE: Importamos Link para la navegación profesional
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function Sidebar({ talentoId }: { talentoId: string }) {
     const { englishLevel, setEnglishLevel } = useTalento();
-    const pathname = usePathname(); // Para saber en qué página estamos
+    const pathname = usePathname();
+    const router = useRouter(); // Instanciamos el router para la redirección
 
     useEffect(() => {
         const fetchLevel = async () => {
+            if (!talentoId) return;
             try {
                 const result = await nexusApi.getResult(talentoId);
                 if (result && result.level) {
@@ -25,7 +26,18 @@ export function Sidebar({ talentoId }: { talentoId: string }) {
         fetchLevel();
     }, [talentoId, setEnglishLevel]);
 
-    // Función auxiliar para estilos de botones activos
+    // Función de Cierre de Sesión
+    const handleLogout = () => {
+        // 1. Eliminamos el ID del almacenamiento local
+        localStorage.removeItem('nexus_talento_id');
+
+        // 2. Reiniciamos el estado del nivel en el contexto
+        setEnglishLevel('...');
+
+        // 3. Redirigimos a la pantalla de Login
+        router.push('/');
+    };
+
     const linkStyle = (path: string) => `
         w-full text-left px-4 py-3 rounded-xl transition-all duration-300 text-sm flex items-center gap-3
         ${pathname === path
@@ -37,13 +49,13 @@ export function Sidebar({ talentoId }: { talentoId: string }) {
         <aside className="w-64 h-screen bg-slate-900 text-white p-6 flex flex-col shadow-2xl border-r border-white/5">
             {/* Logo de la plataforma */}
             <div className="mb-10 px-2">
-                <h2 className="text-xl font-black tracking-tight text-blue-500">
-                    NEXUS <span className="text-white">TALENTO</span>
+                <h2 className="text-xl font-black tracking-tight text-blue-500 uppercase">
+                    Nexus <span className="text-white">Talento</span>
                 </h2>
                 <div className="h-0.5 w-8 bg-blue-500 mt-1 rounded-full"></div>
             </div>
 
-            {/* --- MEDALLA DE NIVEL VERIFICADO --- */}
+            {/* MEDALLA DE NIVEL VERIFICADO */}
             <div className="mb-8 p-4 bg-slate-800/50 rounded-2xl border border-slate-700 backdrop-blur-sm relative overflow-hidden group">
                 <div className={`absolute -right-2 -top-2 w-16 h-16 rounded-full blur-2xl transition-all duration-700 ${englishLevel !== '...' ? 'bg-blue-500/30 animate-pulse' : 'bg-blue-600/10'}`}></div>
 
@@ -65,7 +77,7 @@ export function Sidebar({ talentoId }: { talentoId: string }) {
                 </div>
             </div>
 
-            {/* Navegación Corregida */}
+            {/* Navegación */}
             <nav className="space-y-2 flex-1">
                 <div className="text-[10px] font-mono font-semibold text-slate-500 uppercase px-4 mb-4 tracking-[0.2em]">Menú de Sistema</div>
 
@@ -80,11 +92,14 @@ export function Sidebar({ talentoId }: { talentoId: string }) {
                 </Link>
             </nav>
 
-            {/* Botón de Salida (Opcional pero recomendado) */}
+            {/* Botón de Salida funcional */}
             <div className="mt-auto pt-6 border-t border-white/5">
-                <Link href="/" className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-2 px-4 py-2">
-                    <span>✕</span> Cerrar Sesión
-                </Link>
+                <button
+                    onClick={handleLogout}
+                    className="w-full text-xs text-slate-500 hover:text-red-400 hover:bg-red-400/5 transition-all flex items-center gap-2 px-4 py-3 rounded-xl font-mono uppercase tracking-wider"
+                >
+                    <span className="text-lg">✕</span> Cerrar Sesión
+                </button>
             </div>
         </aside>
     );
