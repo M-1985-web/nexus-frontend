@@ -29,16 +29,27 @@ export const nexusApi = {
     return data;
   },
 
-  // 5. NUEVO: Guardar el nivel calculado directamente (Para tu lógica de 10 preguntas)
-  // CORRECCIÓN: Cambiamos la ruta de /auth/results a /ingles/finish
   saveLevel: async (talentoId: string, score: number, level: string) => {
     const { data } = await api.post('/ingles/finish', {
       talentoId,
-      respuestasCorrectas: score, // Usamos los nombres que espera tu backend
+      respuestasCorrectas: score,
       totalPreguntas: 10,
       level
     });
     return data;
+  }, // <--- AGREGADA LA COMA AQUÍ
+
+  // Método para el Módulo 3 (Práctica Comunicacional)
+  processPractice: async (data: {
+    talentoId: string,
+    type: string,
+    prompt: string,
+    userResponse: string,
+    cefrLevelAtTime: string
+  }) => {
+    // Apunta al endpoint validado en Swagger
+    const { data: response } = await api.post('/comunicacion/proceso-respuesta', data);
+    return response;
   }
 };
 
